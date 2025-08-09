@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Presupuestos</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Bibliotecas para exportação -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.2/docx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">
+          <img
+            src="https://raw.githubusercontent.com/Allvasc/orcamento/refs/heads/main/Ret%C3%A2ngulo%20101%402x.png"
+            alt="Logo da Empresa"
+            class="company-logo"
+          />
+        </div>
+        <ul class="navbar">
+          <li class="export-buttons">
+            <button onclick="exportToPDF()" class="export-btn pdf-btn">
+              <span>📄</span> PDF
+            </button>
+            <button onclick="exportToExcel()" class="export-btn excel-btn">
+              <span>📊</span> Excel
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="client-info">
+        <h2>Información del Cliente</h2>
+        <div class="form-grid">
+          <div class="input-group">
+            <label for="presupuesto">Número de Presupuesto:</label>
+            <input type="text" id="presupuesto" placeholder="Ej: 2024-001" />
+          </div>
+          <div class="input-group">
+            <label for="name">Nombre del Cliente:</label>
+            <input
+              type="text"
+              id="name"
+              placeholder="Introduzca el nombre completo"
+            />
+          </div>
+          <div class="input-group">
+            <label for="address">Dirección:</label>
+            <input
+              type="text"
+              id="address"
+              placeholder="Calle, número, barrio"
+            />
+          </div>
+          <div class="input-group">
+            <label for="city">Ciudad:</label>
+            <input type="text" id="city" placeholder="Ciudad - Provincia" />
+          </div>
+          <div class="input-group">
+            <label for="date">Fecha del Presupuesto:</label>
+            <input type="date" id="date" />
+          </div>
+          <div class="input-group">
+            <label for="validity">Validez (días):</label>
+            <input type="number" id="validity" value="30" min="1" />
+          </div>
+        </div>
+      </section>
+
+      <div class="container">
+        <section class="inputs">
+          <h2>Añadir Producto/Servicio</h2>
+          <form id="productForm">
+            <div class="input-group">
+              <label for="description"
+                >Descripción del Producto/Servicio:</label
+              >
+              <input
+                type="text"
+                id="description"
+                placeholder="Introduzca la descripción"
+                required
+              />
+            </div>
+            <div class="form-row">
+              <div class="input-group">
+                <label for="quantity">Cantidad:</label>
+                <input type="number" id="quantity" min="1" step="1" required />
+              </div>
+              <div class="input-group">
+                <label for="unitPrice">Valor Unitario (€):</label>
+                <input
+                  type="number"
+                  id="unitPrice"
+                  step="0.01"
+                  min="0"
+                  required
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="input-group">
+                <label for="iva">IVA/Impuesto (%):</label>
+                <input
+                  type="number"
+                  id="iva"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value="0"
+                />
+              </div>
+              <div class="input-group">
+                <label for="discount">Descuento (%):</label>
+                <input
+                  type="number"
+                  id="discount"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value="0"
+                />
+              </div>
+            </div>
+            <button type="submit" id="addBtn" class="add-btn">
+              <span>➕</span> Añadir Producto
+            </button>
+          </form>
+        </section>
+
+        <section class="result">
+          <h2>Artículos del Presupuesto</h2>
+          <div class="table-container">
+            <table id="budgetTable">
+              <thead>
+                <tr>
+                  <th>Descripción</th>
+                  <th>Cant.</th>
+                  <th>Valor Unit.</th>
+                  <th>Descuento</th>
+                  <th>Subtotal</th>
+                  <th>IVA</th>
+                  <th>Total</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="budgetBody">
+                <!-- Productos serão adicionados aqui dinamicamente -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="budget-summary">
+            <div class="summary-row">
+              <label>Subtotal (sin impuestos):</label>
+              <span id="subtotalDisplay">€ 0,00</span>
+            </div>
+            <div class="summary-row">
+              <label>Total de Descuentos:</label>
+              <span id="discountDisplay">€ 0,00</span>
+            </div>
+            <div class="summary-row">
+              <label>Total de IVA/Impuestos:</label>
+              <span id="ivaDisplay">€ 0,00</span>
+            </div>
+            <div class="summary-row total-row">
+              <label>Total General:</label>
+              <span id="totalDisplay">€ 0,00</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Sistema de Presupuestos. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
